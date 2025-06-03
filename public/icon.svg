@@ -1,0 +1,20 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="15" fill="#2563eb" stroke="#1d4ed8" stroke-width="2"/>
+  
+  <!-- House/Building icon -->
+  <g fill="white">
+    <!-- Main building -->
+    <rect x="10" y="14" width="12" height="12" rx="1"/>
+    
+    <!-- Roof -->
+    <path d="M9 15 L16 8 L23 15 L21 15 L16 10 L11 15 Z"/>
+    
+    <!-- Door -->
+    <rect x="14" y="20" width="4" height="6" fill="#2563eb"/>
+    
+    <!-- Windows -->
+    <rect x="11.5" y="16.5" width="2" height="2" fill="#2563eb"/>
+    <rect x="18.5" y="16.5" width="2" height="2" fill="#2563eb"/>
+  </g>
+</svg> 
