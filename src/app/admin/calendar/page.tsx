@@ -156,10 +156,10 @@ export default function CalendarPage() {
                           </span>
                         </p>
                         {!selectedRoom.isAvailable &&
-                          selectedRoom.currentTenant && (
+                          selectedRoom.currentLease && (
                             <p>
                               <strong>Tenant:</strong>{" "}
-                              {selectedRoom.currentTenant}
+                              {selectedRoom.currentLease.tenantName}
                             </p>
                           )}
                       </div>

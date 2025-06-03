@@ -6,9 +6,15 @@ import {
   DashboardStats,
   Notification,
   LeaseInfo,
+  LeaseAction,
 } from "@/types";
 import bcrypt from "bcryptjs";
-import { addDays, subDays } from "date-fns";
+import {
+  addDays,
+  subDays,
+  differenceInMonths,
+  differenceInDays,
+} from "date-fns";
 
 // Simulated data for development
 const properties: Property[] = [
@@ -41,6 +47,82 @@ const properties: Property[] = [
     longitude: -73.9934,
     createdAt: new Date("2024-03-01"),
     updatedAt: new Date("2024-03-01"),
+  },
+];
+
+// Enhanced lease data
+const leases: LeaseInfo[] = [
+  {
+    id: "lease-1",
+    roomId: "3",
+    tenantName: "Carlos Mendoza",
+    tenantEmail: "carlos.mendoza@email.com",
+    tenantPhone: "+1 555-123-4567",
+    tenantEmergencyContact: "Maria Mendoza",
+    tenantEmergencyPhone: "+1 555-123-4568",
+    startDate: subDays(new Date(), 90),
+    endDate: addDays(new Date(), 30), // Expires in 30 days
+    monthlyRent: 1600,
+    deposit: 4800, // 3 months
+    depositPaid: true,
+    depositAmount: 4800,
+    status: "ending_soon",
+    autoRenewal: false,
+    renewalNoticeDays: 30,
+    paymentStatus: "current",
+    lastPaymentDate: subDays(new Date(), 5),
+    nextPaymentDue: addDays(new Date(), 25),
+    leaseTerms: [
+      "No smoking inside the premises",
+      "No pets allowed",
+      "Quiet hours: 10 PM - 7 AM",
+      "Monthly inspection allowed",
+    ],
+    specialConditions: "Tenant is responsible for utilities",
+    createdAt: subDays(new Date(), 90),
+    updatedAt: new Date(),
+  },
+  {
+    id: "lease-2",
+    roomId: "4",
+    tenantName: "Ana García",
+    tenantEmail: "ana.garcia@email.com",
+    tenantPhone: "+1 555-987-6543",
+    tenantEmergencyContact: "Luis García",
+    tenantEmergencyPhone: "+1 555-987-6544",
+    startDate: subDays(new Date(), 180),
+    endDate: addDays(new Date(), 60), // Expires in 60 days
+    monthlyRent: 1350,
+    deposit: 2700, // 2 months
+    depositPaid: true,
+    depositAmount: 2700,
+    status: "active",
+    autoRenewal: true,
+    renewalNoticeDays: 60,
+    paymentStatus: "current",
+    lastPaymentDate: subDays(new Date(), 15),
+    nextPaymentDue: addDays(new Date(), 15),
+    leaseTerms: [
+      "Pets allowed with additional deposit",
+      "Tenant maintains terrace garden",
+      "Quiet hours: 10 PM - 8 AM",
+    ],
+    specialConditions: "Water and electricity included in rent",
+    createdAt: subDays(new Date(), 180),
+    updatedAt: new Date(),
+  },
+];
+
+// Lease actions history
+const leaseActions: LeaseAction[] = [
+  {
+    type: "extend",
+    leaseId: "lease-1",
+    data: {
+      newEndDate: addDays(new Date(), 30),
+    },
+    performedBy: "admin@roomrental.com",
+    performedAt: subDays(new Date(), 10),
   },
 ];
 
@@ -115,9 +197,8 @@ const rooms: Room[] = [
     isAvailable: false,
     size: 45,
     maxOccupants: 2,
-    currentTenant: "Carlos Mendoza",
-    leaseStartDate: subDays(new Date(), 90),
-    leaseEndDate: addDays(new Date(), 30), // Available in 30 days
+    currentLease: leases[0],
+    availableFrom: leases[0].endDate,
     createdAt: new Date("2024-02-10"),
     updatedAt: new Date("2024-02-10"),
   },
@@ -139,9 +220,8 @@ const rooms: Room[] = [
     isAvailable: false,
     size: 35,
     maxOccupants: 2,
-    currentTenant: "Ana García",
-    leaseStartDate: subDays(new Date(), 180),
-    leaseEndDate: addDays(new Date(), 60), // Available in 60 days
+    currentLease: leases[1],
+    availableFrom: leases[1].endDate,
     createdAt: new Date("2024-03-15"),
     updatedAt: new Date("2024-03-15"),
   },
@@ -162,6 +242,20 @@ const rooms: Room[] = [
     updatedAt: new Date("2024-04-01"),
   },
 ];
+
+// Update rooms with their current leases
+rooms.forEach((room) => {
+  const currentLease = leases.find(
+    (lease) =>
+      (lease.roomId === room.id && lease.status === "active") ||
+      lease.status === "ending_soon"
+  );
+  if (currentLease) {
+    room.currentLease = currentLease;
+    room.isAvailable = false;
+    room.availableFrom = currentLease.endDate;
+  }
+});
 
 const messages: Message[] = [
   {
@@ -224,36 +318,6 @@ const notifications: Notification[] = [
     priority: "high",
     actionUrl: "/admin/rooms/3",
     createdAt: new Date(),
-  },
-];
-
-const leases: LeaseInfo[] = [
-  {
-    id: "1",
-    roomId: "3",
-    tenantName: "Carlos Mendoza",
-    tenantEmail: "carlos.mendoza@email.com",
-    tenantPhone: "+1 555-999-8888",
-    startDate: subDays(new Date(), 90),
-    endDate: addDays(new Date(), 30),
-    monthlyRent: 1600,
-    deposit: 4800,
-    status: "active",
-    createdAt: subDays(new Date(), 90),
-    updatedAt: new Date(),
-  },
-  {
-    id: "2",
-    roomId: "4",
-    tenantName: "Ana García",
-    tenantEmail: "ana.garcia@email.com",
-    startDate: subDays(new Date(), 180),
-    endDate: addDays(new Date(), 60),
-    monthlyRent: 1350,
-    deposit: 2700,
-    status: "active",
-    createdAt: subDays(new Date(), 180),
-    updatedAt: new Date(),
   },
 ];
 
@@ -504,6 +568,19 @@ export const getDashboardStats = (): DashboardStats => {
     rooms.reduce((sum, r) => sum + r.price, 0) / totalRooms;
   const occupancyRate = (occupiedRooms / totalRooms) * 100;
 
+  // New lease statistics
+  const activeLeases = leases.filter(
+    (l) => l.status === "active" || l.status === "ending_soon"
+  );
+  const totalActiveLeases = activeLeases.length;
+  const averageLeaseDuration =
+    activeLeases.length > 0
+      ? activeLeases.reduce((sum, lease) => {
+          const duration = differenceInMonths(lease.endDate, lease.startDate);
+          return sum + duration;
+        }, 0) / activeLeases.length
+      : 0;
+
   return {
     totalRooms,
     availableRooms,
@@ -514,5 +591,268 @@ export const getDashboardStats = (): DashboardStats => {
     totalMessages,
     averageRoomPrice,
     occupancyRate,
+    totalActiveLeases,
+    averageLeaseDuration,
   };
 };
+
+// Enhanced lease management functions
+export const getLeaseById = (id: string): LeaseInfo | undefined => {
+  return leases.find((l) => l.id === id);
+};
+
+export const createLease = (
+  leaseData: Omit<LeaseInfo, "id" | "createdAt" | "updatedAt">
+): LeaseInfo => {
+  const newLease: LeaseInfo = {
+    ...leaseData,
+    id: `lease-${Date.now()}`,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  leases.push(newLease);
+
+  // Update room availability
+  const room = rooms.find((r) => r.id === leaseData.roomId);
+  if (room) {
+    room.isAvailable = false;
+    room.currentLease = newLease;
+    room.availableFrom = leaseData.endDate;
+    room.updatedAt = new Date();
+  }
+
+  // Log action
+  const action: LeaseAction = {
+    type: "renew",
+    leaseId: newLease.id,
+    data: {
+      newEndDate: leaseData.endDate,
+    },
+    performedBy: "admin",
+    performedAt: new Date(),
+  };
+  leaseActions.push(action);
+
+  return newLease;
+};
+
+export const updateLease = (
+  id: string,
+  updates: Partial<Omit<LeaseInfo, "id" | "createdAt">>
+): LeaseInfo | null => {
+  const index = leases.findIndex((l) => l.id === id);
+  if (index === -1) return null;
+
+  const oldLease = leases[index];
+  leases[index] = {
+    ...oldLease,
+    ...updates,
+    updatedAt: new Date(),
+  };
+
+  // Update room if lease status changes
+  const room = rooms.find((r) => r.id === leases[index].roomId);
+  if (room) {
+    if (updates.status === "terminated" || updates.status === "expired") {
+      room.isAvailable = true;
+      room.currentLease = undefined;
+      room.availableFrom = new Date();
+    } else {
+      room.currentLease = leases[index];
+      room.availableFrom = leases[index].endDate;
+    }
+    room.updatedAt = new Date();
+  }
+
+  return leases[index];
+};
+
+export const terminateLease = (
+  id: string,
+  reason: string,
+  effectiveDate: Date = new Date()
+): boolean => {
+  const lease = leases.find((l) => l.id === id);
+  if (!lease) return false;
+
+  lease.status = "terminated";
+  lease.terminationReason = reason;
+  lease.terminationDate = effectiveDate;
+  lease.updatedAt = new Date();
+
+  // Update room
+  const room = rooms.find((r) => r.id === lease.roomId);
+  if (room) {
+    room.isAvailable = true;
+    room.currentLease = undefined;
+    room.availableFrom = effectiveDate;
+    room.updatedAt = new Date();
+  }
+
+  // Log action
+  const action: LeaseAction = {
+    type: "terminate",
+    leaseId: id,
+    data: {
+      terminationReason: reason,
+      effectiveDate,
+    },
+    performedBy: "admin",
+    performedAt: new Date(),
+  };
+  leaseActions.push(action);
+
+  return true;
+};
+
+export const extendLease = (
+  id: string,
+  newEndDate: Date,
+  newRent?: number
+): boolean => {
+  const lease = leases.find((l) => l.id === id);
+  if (!lease) return false;
+
+  lease.endDate = newEndDate;
+  if (newRent) {
+    lease.monthlyRent = newRent;
+  }
+  lease.status = "active";
+  lease.updatedAt = new Date();
+
+  // Update room
+  const room = rooms.find((r) => r.id === lease.roomId);
+  if (room) {
+    room.currentLease = lease;
+    room.availableFrom = newEndDate;
+    if (newRent) {
+      room.price = newRent;
+    }
+    room.updatedAt = new Date();
+  }
+
+  // Log action
+  const action: LeaseAction = {
+    type: "extend",
+    leaseId: id,
+    data: {
+      newEndDate,
+      newRent,
+    },
+    performedBy: "admin",
+    performedAt: new Date(),
+  };
+  leaseActions.push(action);
+
+  return true;
+};
+
+export const changeTenant = (
+  leaseId: string,
+  newTenantName: string,
+  newTenantEmail: string,
+  newTenantPhone?: string,
+  effectiveDate: Date = new Date()
+): boolean => {
+  const lease = leases.find((l) => l.id === leaseId);
+  if (!lease) return false;
+
+  const oldTenantName = lease.tenantName;
+
+  lease.tenantName = newTenantName;
+  lease.tenantEmail = newTenantEmail;
+  lease.tenantPhone = newTenantPhone;
+  lease.updatedAt = new Date();
+
+  // Update room current lease
+  const room = rooms.find((r) => r.id === lease.roomId);
+  if (room && room.currentLease) {
+    room.currentLease = lease;
+    room.updatedAt = new Date();
+  }
+
+  // Log action
+  const action: LeaseAction = {
+    type: "change_tenant",
+    leaseId,
+    data: {
+      newTenantName,
+      newTenantEmail,
+      newTenantPhone,
+      effectiveDate,
+    },
+    performedBy: "admin",
+    performedAt: new Date(),
+  };
+  leaseActions.push(action);
+
+  // Create notification
+  const notification: Notification = {
+    id: Date.now().toString(),
+    type: "lease_expiring",
+    title: "Tenant Changed",
+    message: `Tenant changed from ${oldTenantName} to ${newTenantName} for ${
+      room?.name || "Room"
+    }`,
+    isRead: false,
+    priority: "medium",
+    actionUrl: "/admin/leases",
+    createdAt: new Date(),
+  };
+  notifications.push(notification);
+
+  return true;
+};
+
+export const getLeaseActions = (leaseId?: string): LeaseAction[] => {
+  if (leaseId) {
+    return leaseActions.filter((a) => a.leaseId === leaseId);
+  }
+  return leaseActions.sort(
+    (a, b) => b.performedAt.getTime() - a.performedAt.getTime()
+  );
+};
+
+// Auto-update lease statuses based on dates
+export const updateLeaseStatuses = (): void => {
+  const today = new Date();
+
+  leases.forEach((lease) => {
+    if (lease.status === "active") {
+      const daysUntilExpiry = differenceInDays(lease.endDate, today);
+
+      if (daysUntilExpiry <= 0) {
+        lease.status = "expired";
+        // Make room available
+        const room = rooms.find((r) => r.id === lease.roomId);
+        if (room) {
+          room.isAvailable = true;
+          room.currentLease = undefined;
+          room.availableFrom = today;
+        }
+      } else if (daysUntilExpiry <= lease.renewalNoticeDays) {
+        lease.status = "ending_soon";
+
+        // Create notification if not already notified
+        if (!lease.renewalNoticeProvided) {
+          const notification: Notification = {
+            id: Date.now().toString(),
+            type: "lease_expiring",
+            title: `Lease Expiring Soon`,
+            message: `${lease.tenantName}'s lease expires in ${daysUntilExpiry} days`,
+            isRead: false,
+            priority: "high",
+            actionUrl: "/admin/leases",
+            createdAt: new Date(),
+          };
+          notifications.push(notification);
+          lease.renewalNoticeProvided = true;
+        }
+      }
+    }
+  });
+};
+
+// Call this function to keep statuses updated
+updateLeaseStatuses();

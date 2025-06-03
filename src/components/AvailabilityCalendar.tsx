@@ -85,14 +85,15 @@ export function AvailabilityCalendar({
               <div className="flex items-center space-x-2">
                 <Badge variant="destructive">Occupied</Badge>
                 <span className="text-sm text-black">
-                  by {room.currentTenant}
+                  by {room.currentLease?.tenantName}
                 </span>
               </div>
-              {room.leaseEndDate && (
+              {room.currentLease?.endDate && (
                 <div className="flex items-center space-x-2 text-sm text-black">
                   <Clock className="h-3 w-3" />
                   <span>
-                    Available from {formatDate(new Date(room.leaseEndDate))}
+                    Available from{" "}
+                    {formatDate(new Date(room.currentLease.endDate))}
                   </span>
                 </div>
               )}
@@ -211,13 +212,13 @@ export function AvailabilityCalendar({
                     <div className="space-y-1 text-sm text-red-700">
                       <p className="flex items-center">
                         <User className="h-3 w-3 mr-1" />
-                        Tenant: {room.currentTenant}
+                        Tenant: {room.currentLease?.tenantName}
                       </p>
-                      {room.leaseEndDate && (
+                      {room.currentLease?.endDate && (
                         <p className="flex items-center">
                           <Clock className="h-3 w-3 mr-1" />
                           Available from:{" "}
-                          {formatDate(new Date(room.leaseEndDate))}
+                          {formatDate(new Date(room.currentLease.endDate))}
                         </p>
                       )}
                     </div>

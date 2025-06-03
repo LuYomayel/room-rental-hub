@@ -41,10 +41,8 @@ export interface Room {
   isAvailable: boolean;
   size?: number; // in square meters
   maxOccupants: number;
-  // New fields for calendar
-  currentTenant?: string;
-  leaseStartDate?: Date;
-  leaseEndDate?: Date;
+  // Enhanced lease fields
+  currentLease?: LeaseInfo;
   availableFrom?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -97,11 +95,18 @@ export interface DashboardStats {
   totalMessages: number;
   averageRoomPrice: number;
   occupancyRate: number;
+  totalActiveLeases: number;
+  averageLeaseDuration: number; // in months
 }
 
 export interface Notification {
   id: string;
-  type: "message" | "lease_expiring" | "payment" | "maintenance";
+  type:
+    | "message"
+    | "lease_expiring"
+    | "payment"
+    | "maintenance"
+    | "lease_ended";
   title: string;
   message: string;
   isRead: boolean;
@@ -113,14 +118,73 @@ export interface Notification {
 export interface LeaseInfo {
   id: string;
   roomId: string;
+  room?: Room;
+  // Tenant information
   tenantName: string;
   tenantEmail: string;
   tenantPhone?: string;
+  tenantEmergencyContact?: string;
+  tenantEmergencyPhone?: string;
+  // Lease details
   startDate: Date;
   endDate: Date;
   monthlyRent: number;
   deposit: number;
-  status: "active" | "expired" | "terminated";
+  depositPaid: boolean;
+  depositAmount?: number;
+  // Lease status and management
+  status: "active" | "expired" | "terminated" | "pending" | "ending_soon";
+  terminationReason?: string;
+  terminationDate?: Date;
+  // Additional terms
+  leaseTerms?: string[];
+  specialConditions?: string;
+  // Automatic renewal
+  autoRenewal: boolean;
+  renewalNoticeProvided?: boolean;
+  renewalNoticeDays: number; // days before expiry to notify
+  // Payment tracking
+  lastPaymentDate?: Date;
+  nextPaymentDue?: Date;
+  paymentStatus: "current" | "late" | "overdue";
+  // Metadata
   createdAt: Date;
   updatedAt: Date;
+}
+
+// New interfaces for lease management
+export interface LeaseAction {
+  type: "extend" | "terminate" | "renew" | "change_tenant" | "update_rent";
+  leaseId: string;
+  data: {
+    newEndDate?: Date;
+    newTenantName?: string;
+    newTenantEmail?: string;
+    newTenantPhone?: string;
+    newRent?: number;
+    terminationReason?: string;
+    effectiveDate?: Date;
+  };
+  performedBy: string;
+  performedAt: Date;
+}
+
+export interface TenantChangeRequest {
+  leaseId: string;
+  currentTenant: {
+    name: string;
+    email: string;
+    phone?: string;
+  };
+  newTenant: {
+    name: string;
+    email: string;
+    phone?: string;
+    emergencyContact?: string;
+    emergencyPhone?: string;
+  };
+  effectiveDate: Date;
+  keepLeaseTerms: boolean;
+  newDeposit?: number;
+  reason?: string;
 }

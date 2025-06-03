@@ -365,6 +365,13 @@ export default function AdminDashboardPage() {
             </Button>
             <Button
               variant="outline"
+              onClick={() => router.push("/admin/leases")}
+            >
+              <Users className="h-4 w-4 mr-2" />
+              Manage Leases
+            </Button>
+            <Button
+              variant="outline"
               onClick={() => router.push("/admin/messages")}
             >
               <MessageCircle className="h-4 w-4 mr-2" />
@@ -430,13 +437,14 @@ export default function AdminDashboardPage() {
                       </p>
                     </div>
 
-                    {!room.isAvailable && room.leaseEndDate && (
+                    {!room.isAvailable && room.currentLease && (
                       <div className="mb-3 p-2 bg-yellow-50 border border-yellow-200 rounded text-sm">
                         <span className="text-yellow-800">
-                          Available from:{" "}
-                          {new Date(room.leaseEndDate).toLocaleDateString(
-                            "en-US"
-                          )}
+                          Tenant: {room.currentLease.tenantName} • Available
+                          from:{" "}
+                          {new Date(
+                            room.currentLease.endDate
+                          ).toLocaleDateString("en-US")}
                         </span>
                       </div>
                     )}

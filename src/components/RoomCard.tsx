@@ -98,13 +98,15 @@ export function RoomCard({ room, showAvailability = false }: RoomCardProps) {
           </p>
 
           {/* Availability information */}
-          {!room.isAvailable && room.leaseEndDate && (
+          {!room.isAvailable && room.currentLease?.endDate && (
             <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
               <div className="flex items-center text-yellow-800 text-sm">
                 <Calendar className="h-4 w-4 mr-2" />
                 <span>
                   Available from{" "}
-                  {new Date(room.leaseEndDate).toLocaleDateString("en-US")}
+                  {new Date(room.currentLease.endDate).toLocaleDateString(
+                    "en-US"
+                  )}
                 </span>
               </div>
             </div>
