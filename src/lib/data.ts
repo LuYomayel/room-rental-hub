@@ -194,11 +194,9 @@ const rooms: Room[] = [
       "Guarantor required",
       "Security insurance",
     ],
-    isAvailable: false,
+    isAvailable: true,
     size: 45,
     maxOccupants: 2,
-    currentLease: leases[0],
-    availableFrom: leases[0].endDate,
     createdAt: new Date("2024-02-10"),
     updatedAt: new Date("2024-02-10"),
   },
@@ -217,11 +215,9 @@ const rooms: Room[] = [
       "Washing Machine",
     ],
     requirements: ["2-month deposit", "Proof of income"],
-    isAvailable: false,
+    isAvailable: true,
     size: 35,
     maxOccupants: 2,
-    currentLease: leases[1],
-    availableFrom: leases[1].endDate,
     createdAt: new Date("2024-03-15"),
     updatedAt: new Date("2024-03-15"),
   },
@@ -247,8 +243,8 @@ const rooms: Room[] = [
 rooms.forEach((room) => {
   const currentLease = leases.find(
     (lease) =>
-      (lease.roomId === room.id && lease.status === "active") ||
-      lease.status === "ending_soon"
+      lease.roomId === room.id &&
+      (lease.status === "active" || lease.status === "ending_soon")
   );
   if (currentLease) {
     room.currentLease = currentLease;
