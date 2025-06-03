@@ -416,6 +416,7 @@ function PropertyEditor({ property, onSave, onCancel }: PropertyEditorProps) {
                     }
                     placeholder="e.g., Downtown Apartments"
                     required
+                    className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
 
@@ -426,13 +427,15 @@ function PropertyEditor({ property, onSave, onCancel }: PropertyEditorProps) {
                   <select
                     value={formData.buildingType}
                     onChange={(e) => {
-                      const value = e.target.value as Property["buildingType"];
+                      const value =
+                        (e.target.value as Property["buildingType"]) ||
+                        "apartment";
                       setFormData({
                         ...formData,
                         buildingType: value,
                       });
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="apartment">Apartment Building</option>
                     <option value="house">House</option>
@@ -455,6 +458,7 @@ function PropertyEditor({ property, onSave, onCancel }: PropertyEditorProps) {
                   }
                   placeholder="e.g., 123 Main Street, City, State"
                   required
+                  className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
@@ -463,7 +467,7 @@ function PropertyEditor({ property, onSave, onCancel }: PropertyEditorProps) {
                   Description
                 </label>
                 <textarea
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   rows={3}
                   value={formData.description}
                   onChange={(e) =>
@@ -485,6 +489,7 @@ function PropertyEditor({ property, onSave, onCancel }: PropertyEditorProps) {
                       setFormData({ ...formData, yearBuilt: e.target.value })
                     }
                     placeholder="2020"
+                    className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
 
@@ -499,6 +504,7 @@ function PropertyEditor({ property, onSave, onCancel }: PropertyEditorProps) {
                       setFormData({ ...formData, totalRooms: e.target.value })
                     }
                     placeholder="10"
+                    className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
 
@@ -516,6 +522,7 @@ function PropertyEditor({ property, onSave, onCancel }: PropertyEditorProps) {
                       })
                     }
                     placeholder="5"
+                    className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -540,6 +547,7 @@ function PropertyEditor({ property, onSave, onCancel }: PropertyEditorProps) {
                       setFormData({ ...formData, contactEmail: e.target.value })
                     }
                     placeholder="property@example.com"
+                    className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
 
@@ -554,6 +562,7 @@ function PropertyEditor({ property, onSave, onCancel }: PropertyEditorProps) {
                       setFormData({ ...formData, contactPhone: e.target.value })
                     }
                     placeholder="+1 555-123-4567"
+                    className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -572,6 +581,7 @@ function PropertyEditor({ property, onSave, onCancel }: PropertyEditorProps) {
                     })
                   }
                   placeholder="ABC Property Management"
+                  className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
             </CardContent>
@@ -596,6 +606,7 @@ function PropertyEditor({ property, onSave, onCancel }: PropertyEditorProps) {
                       setFormData({ ...formData, latitude: e.target.value })
                     }
                     placeholder="e.g., 40.7128"
+                    className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 <div>
@@ -610,6 +621,7 @@ function PropertyEditor({ property, onSave, onCancel }: PropertyEditorProps) {
                       setFormData({ ...formData, longitude: e.target.value })
                     }
                     placeholder="e.g., -74.0060"
+                    className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -631,6 +643,7 @@ function PropertyEditor({ property, onSave, onCancel }: PropertyEditorProps) {
                   onKeyPress={(e) =>
                     e.key === "Enter" && (e.preventDefault(), addService())
                   }
+                  className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
                 <Button type="button" onClick={addService}>
                   <Plus className="h-4 w-4" />
@@ -671,6 +684,7 @@ function PropertyEditor({ property, onSave, onCancel }: PropertyEditorProps) {
                   onKeyPress={(e) =>
                     e.key === "Enter" && (e.preventDefault(), addAmenity())
                   }
+                  className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
                 <Button type="button" onClick={addAmenity}>
                   <Plus className="h-4 w-4" />
@@ -710,13 +724,14 @@ function PropertyEditor({ property, onSave, onCancel }: PropertyEditorProps) {
                   <select
                     value={formData.pets}
                     onChange={(e) => {
-                      const value = e.target.value as Property["pets"];
+                      const value =
+                        (e.target.value as Property["pets"]) || "not_allowed";
                       setFormData({
                         ...formData,
                         pets: value,
                       });
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="not_allowed">Not Allowed</option>
                     <option value="allowed">Allowed</option>
@@ -731,13 +746,15 @@ function PropertyEditor({ property, onSave, onCancel }: PropertyEditorProps) {
                   <select
                     value={formData.smokingPolicy}
                     onChange={(e) => {
-                      const value = e.target.value as Property["smokingPolicy"];
+                      const value =
+                        (e.target.value as Property["smokingPolicy"]) ||
+                        "not_allowed";
                       setFormData({
                         ...formData,
                         smokingPolicy: value,
                       });
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="not_allowed">Not Allowed</option>
                     <option value="outdoor_only">Outdoor Only</option>
@@ -773,7 +790,7 @@ function PropertyEditor({ property, onSave, onCancel }: PropertyEditorProps) {
                           },
                         })
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
                       <option value="not_included">Not Included</option>
                       <option value="included">Included</option>

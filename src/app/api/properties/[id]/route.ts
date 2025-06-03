@@ -4,16 +4,19 @@ import { verifyToken } from "@/lib/auth";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const property = getPropertyById(params.id);
+    const resolvedParams = await params;
+    const property = getPropertyById(resolvedParams.id);
+
     if (!property) {
       return NextResponse.json(
         { error: "Property not found" },
         { status: 404 }
       );
     }
+
     return NextResponse.json(property);
   } catch (error) {
     console.error("Error fetching property:", error);
@@ -26,7 +29,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verify authentication
@@ -41,7 +44,8 @@ export async function PUT(
     }
 
     const updates = await request.json();
-    const updatedProperty = updateProperty(params.id, updates);
+    const resolvedParams = await params;
+    const updatedProperty = updateProperty(resolvedParams.id, updates);
 
     if (!updatedProperty) {
       return NextResponse.json(
@@ -62,7 +66,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verify authentication
@@ -76,7 +80,9 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const deleted = deleteProperty(params.id);
+    const resolvedParams = await params;
+    const deleted = deleteProperty(resolvedParams.id);
+
     if (!deleted) {
       return NextResponse.json(
         { error: "Property not found" },

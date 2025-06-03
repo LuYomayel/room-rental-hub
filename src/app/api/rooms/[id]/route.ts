@@ -4,10 +4,11 @@ import { verifyToken } from "@/lib/auth";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const room = getRoomById(params.id);
+    const resolvedParams = await params;
+    const room = getRoomById(resolvedParams.id);
 
     if (!room) {
       return NextResponse.json({ error: "Room not found" }, { status: 404 });
@@ -25,10 +26,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Verificar autenticación
+    // Verify authentication
     const token = request.cookies.get("auth-token")?.value;
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -40,7 +41,8 @@ export async function PUT(
     }
 
     const updates = await request.json();
-    const updatedRoom = updateRoom(params.id, updates);
+    const resolvedParams = await params;
+    const updatedRoom = updateRoom(resolvedParams.id, updates);
 
     if (!updatedRoom) {
       return NextResponse.json({ error: "Room not found" }, { status: 404 });
@@ -58,10 +60,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Verificar autenticación
+    // Verify authentication
     const token = request.cookies.get("auth-token")?.value;
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -72,7 +74,8 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const deleted = deleteRoom(params.id);
+    const resolvedParams = await params;
+    const deleted = deleteRoom(resolvedParams.id);
 
     if (!deleted) {
       return NextResponse.json({ error: "Room not found" }, { status: 404 });

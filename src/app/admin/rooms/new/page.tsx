@@ -179,7 +179,7 @@ export default function NewRoomPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, propertyId: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     required
                   >
                     <option value="">Select a property</option>
@@ -218,7 +218,7 @@ export default function NewRoomPage() {
                         maxOccupants: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="1">1 person</option>
                     <option value="2">2 people</option>
@@ -253,7 +253,7 @@ export default function NewRoomPage() {
                         isAvailable: e.target.value === "true",
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="true">Available</option>
                     <option value="false">Occupied</option>
@@ -267,7 +267,7 @@ export default function NewRoomPage() {
                   Description
                 </label>
                 <textarea
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-500"
                   rows={3}
                   value={formData.description}
                   onChange={(e) =>

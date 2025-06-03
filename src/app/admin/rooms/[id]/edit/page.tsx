@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { ArrowLeft, Plus, X } from "lucide-react";
 
 interface EditRoomPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default function EditRoomPage({ params }: EditRoomPageProps) {
@@ -17,6 +17,7 @@ export default function EditRoomPage({ params }: EditRoomPageProps) {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [roomId, setRoomId] = useState<string>("");
   const router = useRouter();
 
   const [formData, setFormData] = useState({
@@ -35,13 +36,23 @@ export default function EditRoomPage({ params }: EditRoomPageProps) {
   const [newRequirement, setNewRequirement] = useState("");
 
   useEffect(() => {
-    fetchData();
-  }, [params.id]);
+    const getParams = async () => {
+      const resolvedParams = await params;
+      setRoomId(resolvedParams.id);
+    };
+    getParams();
+  }, [params]);
+
+  useEffect(() => {
+    if (roomId) {
+      fetchData();
+    }
+  }, [roomId]);
 
   const fetchData = async () => {
     try {
       const [roomRes, propertiesRes] = await Promise.all([
-        fetch(`/api/rooms/${params.id}`),
+        fetch(`/api/rooms/${roomId}`),
         fetch("/api/properties"),
       ]);
 
@@ -77,7 +88,7 @@ export default function EditRoomPage({ params }: EditRoomPageProps) {
     setSaving(true);
 
     try {
-      const response = await fetch(`/api/rooms/${params.id}`, {
+      const response = await fetch(`/api/rooms/${roomId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -220,7 +231,7 @@ export default function EditRoomPage({ params }: EditRoomPageProps) {
                     onChange={(e) =>
                       setFormData({ ...formData, propertyId: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     required
                   >
                     <option value="">Select a property</option>
@@ -259,7 +270,7 @@ export default function EditRoomPage({ params }: EditRoomPageProps) {
                         maxOccupants: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="1">1 person</option>
                     <option value="2">2 people</option>
@@ -294,7 +305,7 @@ export default function EditRoomPage({ params }: EditRoomPageProps) {
                         isAvailable: e.target.value === "true",
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="true">Available</option>
                     <option value="false">Occupied</option>
@@ -308,7 +319,7 @@ export default function EditRoomPage({ params }: EditRoomPageProps) {
                   Description
                 </label>
                 <textarea
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-500"
                   rows={3}
                   value={formData.description}
                   onChange={(e) =>

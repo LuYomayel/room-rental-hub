@@ -4,10 +4,10 @@ import { verifyToken } from "@/lib/auth";
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Verificar autenticación
+    // Verify authentication
     const token = request.cookies.get("auth-token")?.value;
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -18,7 +18,8 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const success = deleteMessage(params.id);
+    const resolvedParams = await params;
+    const success = deleteMessage(resolvedParams.id);
 
     if (!success) {
       return NextResponse.json({ error: "Message not found" }, { status: 404 });
