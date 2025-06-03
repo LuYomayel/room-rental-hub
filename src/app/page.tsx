@@ -1,57 +1,49 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Room, RoomFilters as RoomFiltersType, Property } from "@/types";
+import { Room, RoomFilters as RoomFiltersType } from "@/types";
 import { RoomCard } from "@/components/RoomCard";
 import { RoomFilters } from "@/components/RoomFilters";
-import { PropertyMap } from "@/components/PropertyMap";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, LayoutGrid, Map } from "lucide-react";
+import { Button } from "@/components/ui/button";
+// import { PropertyMap } from "@/components/PropertyMap"; // Commented out - not connected to real maps API
+import {
+  Search,
+  MapPin,
+  LayoutGrid,
+  // Map // Commented out - removing map functionality
+} from "lucide-react";
 
 export default function HomePage() {
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [properties, setProperties] = useState<Property[]>([]);
+  const [filteredRooms, setFilteredRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<RoomFiltersType>({});
-  const [filteredRooms, setFilteredRooms] = useState<Room[]>([]);
-  const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
-  const [selectedProperty, setSelectedProperty] = useState<
-    Property | undefined
-  >();
 
   useEffect(() => {
     fetchData();
   }, []);
 
   useEffect(() => {
-    // Apply filters and search locally
     applyFilters();
-  }, [rooms, search, filters]);
+  }, [search, filters, rooms]);
 
   const fetchData = async () => {
     try {
-      const roomsRes = await fetch("/api/rooms?available=true");
+      const roomsRes = await fetch("/api/rooms");
 
-      let roomsData: Room[] = [];
       if (roomsRes.ok) {
-        roomsData = await roomsRes.json();
+        const roomsData = await roomsRes.json();
         setRooms(roomsData);
+        setFilteredRooms(roomsData);
       }
 
-      // Extract unique properties from rooms
-      const seenPropertyIds = new Set<string>();
-      const uniqueProperties: Property[] = [];
-
-      roomsData.forEach((room: Room) => {
-        if (room.property && !seenPropertyIds.has(room.property.id)) {
-          seenPropertyIds.add(room.property.id);
-          uniqueProperties.push(room.property);
-        }
-      });
-
-      setProperties(uniqueProperties);
+      // We don't need to store properties since map is disabled
+      // if (propertiesRes.ok) {
+      //   const propertiesData = await propertiesRes.json();
+      //   setProperties(propertiesData);
+      // }
     } catch (error) {
       console.error("Error loading data:", error);
     } finally {
@@ -60,73 +52,48 @@ export default function HomePage() {
   };
 
   const applyFilters = () => {
-    let filtered = [...rooms];
+    let filtered = rooms.filter((room) => {
+      const matchesSearch =
+        room.name.toLowerCase().includes(search.toLowerCase()) ||
+        room.property?.name.toLowerCase().includes(search.toLowerCase()) ||
+        room.property?.address.toLowerCase().includes(search.toLowerCase()) ||
+        room.description.toLowerCase().includes(search.toLowerCase());
 
-    // Text search
-    if (search) {
-      const searchLower = search.toLowerCase();
-      filtered = filtered.filter(
-        (room) =>
-          room.name.toLowerCase().includes(searchLower) ||
-          room.description.toLowerCase().includes(searchLower) ||
-          room.property?.address.toLowerCase().includes(searchLower) ||
-          room.amenities.some((amenity) =>
-            amenity.toLowerCase().includes(searchLower)
+      const matchesAvailability =
+        filters.isAvailable === undefined ||
+        room.isAvailable === filters.isAvailable;
+
+      const matchesMinPrice =
+        !filters.minPrice || room.price >= filters.minPrice;
+      const matchesMaxPrice =
+        !filters.maxPrice || room.price <= filters.maxPrice;
+
+      const matchesOccupants =
+        !filters.maxOccupants || room.maxOccupants <= filters.maxOccupants;
+
+      const matchesAmenities =
+        !filters.amenities ||
+        filters.amenities.length === 0 ||
+        filters.amenities.every((amenity: string) =>
+          room.amenities.some((roomAmenity: string) =>
+            roomAmenity.toLowerCase().includes(amenity.toLowerCase())
           )
+        );
+
+      return (
+        matchesSearch &&
+        matchesAvailability &&
+        matchesMinPrice &&
+        matchesMaxPrice &&
+        matchesOccupants &&
+        matchesAmenities
       );
-    }
+    });
 
-    // Advanced filters
-    if (filters.minPrice) {
-      filtered = filtered.filter((room) => room.price >= filters.minPrice!);
-    }
-
-    if (filters.maxPrice) {
-      filtered = filtered.filter((room) => room.price <= filters.maxPrice!);
-    }
-
-    if (filters.maxOccupants) {
-      filtered = filtered.filter(
-        (room) => room.maxOccupants >= filters.maxOccupants!
-      );
-    }
-
-    if (filters.amenities && filters.amenities.length > 0) {
-      filtered = filtered.filter((room) =>
-        filters.amenities!.every((amenity) => room.amenities.includes(amenity))
-      );
-    }
-
-    if (filters.size?.min) {
-      filtered = filtered.filter(
-        (room) => (room.size || 0) >= filters.size!.min!
-      );
-    }
-
-    if (filters.size?.max) {
-      filtered = filtered.filter(
-        (room) => (room.size || 0) <= filters.size!.max!
-      );
-    }
-
-    if (filters.isAvailable !== undefined) {
-      filtered = filtered.filter(
-        (room) => room.isAvailable === filters.isAvailable
-      );
-    }
-
-    if (filters.availableFrom) {
-      filtered = filtered.filter((room) => {
-        if (!room.availableFrom) return true;
-        return new Date(room.availableFrom) <= filters.availableFrom!;
-      });
-    }
-
-    // Sorting
+    // Apply sorting
     if (filters.sortBy) {
-      filtered.sort((a, b) => {
+      filtered = filtered.sort((a, b) => {
         const order = filters.sortOrder === "desc" ? -1 : 1;
-
         switch (filters.sortBy) {
           case "price":
             return (a.price - b.price) * order;
@@ -193,7 +160,7 @@ export default function HomePage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Search Bar and View Toggle */}
+        {/* Search Bar */}
         <div className="mb-6 flex flex-col lg:flex-row gap-4">
           <div className="flex-1">
             <div className="relative">
@@ -208,22 +175,11 @@ export default function HomePage() {
             </div>
           </div>
 
+          {/* View toggle removed - only showing list view */}
           <div className="flex gap-2">
-            <Button
-              variant={viewMode === "grid" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setViewMode("grid")}
-            >
+            <Button variant="default" size="sm">
               <LayoutGrid className="h-4 w-4 mr-2" />
-              List
-            </Button>
-            <Button
-              variant={viewMode === "map" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setViewMode("map")}
-            >
-              <Map className="h-4 w-4 mr-2" />
-              Map
+              List View
             </Button>
           </div>
         </div>
@@ -274,42 +230,27 @@ export default function HomePage() {
               )}
             </div>
 
-            {/* List/Map View */}
-            {viewMode === "grid" ? (
-              // List View
-              filteredRooms.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="max-w-md mx-auto">
-                    <MapPin className="h-16 w-16 text-black mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-black mb-2">
-                      No rooms available
-                    </h3>
-                    <p className="text-black">
-                      {search || Object.keys(filters).length > 0
-                        ? "We couldn't find rooms matching your criteria. Try adjusting the filters."
-                        : "There are currently no rooms available. Come back soon for new options."}
-                    </p>
-                  </div>
+            {/* List View Only */}
+            {filteredRooms.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="max-w-md mx-auto">
+                  <MapPin className="h-16 w-16 text-black mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-black mb-2">
+                    No rooms available
+                  </h3>
+                  <p className="text-black">
+                    {search || Object.keys(filters).length > 0
+                      ? "We couldn't find rooms matching your criteria. Try adjusting the filters."
+                      : "There are currently no rooms available. Come back soon for new options."}
+                  </p>
                 </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {filteredRooms.map((room) => (
-                    <RoomCard
-                      key={room.id}
-                      room={room}
-                      showAvailability={true}
-                    />
-                  ))}
-                </div>
-              )
+              </div>
             ) : (
-              // Map View
-              <PropertyMap
-                properties={properties}
-                selectedProperty={selectedProperty}
-                onPropertySelect={setSelectedProperty}
-                height="600px"
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {filteredRooms.map((room) => (
+                  <RoomCard key={room.id} room={room} showAvailability={true} />
+                ))}
+              </div>
             )}
           </div>
         </div>

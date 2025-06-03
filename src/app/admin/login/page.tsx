@@ -35,10 +35,10 @@ export default function AdminLoginPage() {
       if (response.ok) {
         router.push("/admin/dashboard");
       } else {
-        setError(data.error || "Error al iniciar sesión");
+        setError(data.error || "Login failed");
       }
     } catch {
-      setError("Error de conexión");
+      setError("Connection error");
     } finally {
       setIsLoading(false);
     }
@@ -57,16 +57,16 @@ export default function AdminLoginPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-black mb-2">
-            Panel de Administración
+            Administration Panel
           </h1>
           <p className="text-black">
-            Ingresa tus credenciales para acceder al sistema
+            Enter your credentials to access the system
           </p>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-center">Iniciar Sesión</CardTitle>
+            <CardTitle className="text-center">Sign In</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -103,7 +103,7 @@ export default function AdminLoginPage() {
                   htmlFor="password"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Contraseña
+                  Password
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-black" />
@@ -124,29 +124,29 @@ export default function AdminLoginPage() {
                 {isLoading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Iniciando sesión...
+                    Signing in...
                   </>
                 ) : (
-                  "Iniciar Sesión"
+                  "Sign In"
                 )}
               </Button>
             </form>
 
-            {/* Credenciales de prueba */}
+            {/* Demo credentials */}
             <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded">
               <h4 className="text-sm font-medium text-blue-900 mb-2">
-                Credenciales de prueba:
+                Demo credentials:
               </h4>
               <p className="text-sm text-blue-700">
                 Email: admin@roomrental.com
                 <br />
-                Contraseña: admin123
+                Password: admin123
               </p>
             </div>
           </CardContent>
         </Card>
 
-        {/* Volver al inicio */}
+        {/* Back to home */}
         <div className="text-center mt-6">
           <Button
             variant="ghost"
@@ -154,7 +154,7 @@ export default function AdminLoginPage() {
             className="text-black hover:text-black"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Volver al inicio
+            Back to Home
           </Button>
         </div>
       </div>
